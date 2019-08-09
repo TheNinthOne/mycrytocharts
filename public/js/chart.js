@@ -84,41 +84,45 @@ const myChart = new Chart(ctx, {
 
 //Function to render a chart line
 async function newLine(chart) {
-  const coinId = sessionStorage.getItem("coinId");
-  const request = axios({ method: "get", url: `/data/${coinId}` });
+  return new Promise(async (resolve, reject) => {
+    const coinId = sessionStorage.getItem("coinId");
+    const request = axios({ method: "get", url: `/data/${coinId}` });
 
-  try {
-    const response = await request;
-    const { prices } = response.data;
-    //Transform response data for easier use for rendering
-    const chartData = prices.reduce(
-      (acc, pair) => {
-        acc.dates.push(moment(pair[0]));
-        acc.data.push(pair[1]);
-        return acc;
-      },
-      { dates: [], data: [] }
-    );
+    try {
+      const response = await request;
+      const { prices } = response.data;
 
-    //Receive random graph color from server
-    const borderColor = await getColor();
+      //Transform response data for easier use for rendering
+      const chartData = prices.reduce(
+        (acc, pair) => {
+          acc.dates.push(moment(pair[0]));
+          acc.data.push(pair[1]);
+          return acc;
+        },
+        { dates: [], data: [] }
+      );
 
-    const label = sessionStorage.getItem("symbol");
+      //Receive random graph color from server
+      const borderColor = await getColor();
 
-    //Create Chrat Specific dataset
-    const newDataset = Object.assign(defaultDataset, {
-      label,
-      data: chartData.data,
-      borderColor
-    });
+      const label = sessionStorage.getItem("symbol");
 
-    //Load data into the chart
-    chart.data.labels = chartData.dates;
-    chart.data.datasets.push(newDataset);
-    chart.update();
-  } catch (error) {
-    console.log(error);
-  }
+      //Create Chrat Specific dataset
+      const newDataset = Object.assign(defaultDataset, {
+        label,
+        data: chartData.data,
+        borderColor
+      });
+
+      //Load data into the chart
+      myChart.data.labels = chartData.dates;
+      myChart.data.datasets.push(newDataset);
+      myChart.update();
+      resolve(true);
+    } catch (error) {
+      reject(error);
+    }
+  });
 }
 
 //Helper for handling color request
