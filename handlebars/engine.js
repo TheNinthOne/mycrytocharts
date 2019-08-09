@@ -1,10 +1,10 @@
 const path = require("path");
 const handlebars = require("express-handlebars");
 
-//Helpers
+//Helper functions available to HBS when it's rendering views
 const equals = (p1, p2) => p1 == p2;
 const localeString = number => number.toLocaleString();
-const title = () => "My Crypto Charts";
+const title = () => "My Crypto Charts"; //Constant so it does not have to be specified on each render
 const toUpperCase = string => string.toUpperCase();
 
 //Creating engine

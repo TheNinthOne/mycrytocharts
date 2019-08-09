@@ -5,13 +5,16 @@ const api = process.env.API;
 const { ids } = require("../coins");
 
 const data_chart = async (req, res) => {
+  //Controller function for /data/:coinId route
   const { coinId } = req.params;
   if (!ids.includes(coinId)) {
+    //Handle error in case coin doesnt exist on the list of id's
     const error = new Error("Request Failed - Not Found");
     error.status = 404;
     res.render("error", { error });
     return;
   }
+  //Request for historical data for past 7 days for API
   const request = axios({
     method: "get",
     url: `${api}/coins/${coinId}/market_chart`,
@@ -29,6 +32,7 @@ const data_chart = async (req, res) => {
 };
 
 const data_color = async (req, res) => {
+  //Controller for /data/color route
   const request = axios({
     method: "get",
     url: "http://www.colr.org/json/color/random"
@@ -43,6 +47,7 @@ const data_color = async (req, res) => {
 };
 
 const data_symbol = async (req, res) => {
+  // Controller for data_symbol route
   const { coinId } = req.params;
   const request = axios({
     method: "get",

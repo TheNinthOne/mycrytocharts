@@ -3,11 +3,14 @@ const axios = require("axios");
 require("dotenv").config();
 const api = process.env.API;
 
-const { ids } = require("../coins");
+const { ids } = require("../coins"); //JSON file with list of coins Id's to display
 
 const page_index = async (req, res) => {
+  //Controller for / route
   const promises = ids.map(id => {
+    //Create an array of promises for each coin id
     return new Promise(async (resolve, reject) => {
+      //Each promise receives coin specific data
       const request = axios({
         method: "get",
         url: `${api}/coins/${id}`,
@@ -31,7 +34,7 @@ const page_index = async (req, res) => {
           url: `/charts/${id}`
         };
 
-        resolve(obj);
+        resolve(obj); //And each promise will return only necessary data from the response object
       } catch (error) {
         reject(error);
       }
@@ -47,8 +50,10 @@ const page_index = async (req, res) => {
 };
 
 const page_chart = async (req, res) => {
+  //Controller for /charts/:coinId route
   const { coinId } = req.params;
   if (!ids.includes(coinId)) {
+    //Handle error in case coin doesnt exist on the list of id's
     const error = new Error("Request Failed - Not Found");
     error.status = 404;
     res.render("error", { error });
@@ -72,8 +77,8 @@ const page_chart = async (req, res) => {
     res.render("chart", {
       chart: true,
       bootstrap: true,
-      extendTitle: coinName,
-      image: image.small,
+      extendTitle: coinName, //Goes after the title so each title is made unique
+      image: image.small, //For page rendering
       symbol,
       coinName
     });

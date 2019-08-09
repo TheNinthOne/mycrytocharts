@@ -2,8 +2,6 @@ const path = require("path");
 const morgan = require("morgan");
 const express = require("express");
 
-require("dotenv").config();
-
 //Middleware includes
 const errorMiddleware = require("./api/middleware/error");
 
@@ -14,6 +12,7 @@ const hbsEngine = require("./handlebars/engine");
 const pageRouter = require("./api/routes/pages");
 const dataRouter = require("./api/routes/data");
 
+//Initialize app
 const app = express();
 
 //Dev middleware
@@ -30,6 +29,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", pageRouter);
 app.use("/data", dataRouter);
 
+//Including error handling middleware
 app.use(errorMiddleware.error_not_found);
 app.use(errorMiddleware.error_not_catched);
 

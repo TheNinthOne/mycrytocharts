@@ -1,12 +1,3 @@
 {
-  "ids": [
-    "bitcoin",
-    "ethereum",
-    "ripple",
-    "litecoin",
-    "neo",
-    "cardano",
-    "eos",
-    "monero"
-  ]
+  "ids": ["bitcoin", "ethereum", "ripple", "litecoin", "neo"]
 }
