@@ -22,9 +22,6 @@ var opts = {
 var target = document.getElementById("loader");
 var spinner = new Spinner(opts).spin(target);
 
-console.log(new Spinner(opts));
-console.log(spinner);
-
 document.addEventListener("DOMContentLoaded", () => {
   newLine(myChart)
     .then(value => {
