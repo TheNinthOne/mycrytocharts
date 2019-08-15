@@ -7,7 +7,7 @@ sessionStorage.setItem("coinId", coin);
 
 //Determine What is coin symbol
 axios
-  .get(`/data/${coin}/symbol`)
+  .get(`/api/${coin}/symbol`)
   .then(response => {
     const { symbol } = response.data;
     sessionStorage.setItem("symbol", symbol.toUpperCase());
@@ -25,6 +25,7 @@ const defaultDataset = {
   borderWidth: 3,
   lineTension: 0,
   pointRadius: 0,
+  borderColor: "#fc03f8",
   pointHitRadius: 30
 };
 
@@ -42,7 +43,7 @@ const myChart = new Chart(ctx, {
         //Called when rendering a tooltip
         title: function(tooltipItem, data) {
           const time = data.labels[tooltipItem[0].index];
-          return time.format("Do MMM HH:mm");
+          return moment(time).format("Do MMM HH:mm");
         },
         label: function(tooltipItem, data) {
           return (
@@ -71,8 +72,9 @@ const myChart = new Chart(ctx, {
             fontColor: "#007bff",
             callback: function(item, index) {
               //Render only every 24th X axis because they are repeating
-              if (!(index % 24)) return item.format("Do MMM");
-              else return "";
+              // if (!(index % 24)) return moment(item).format("Do MMM");
+              // else return "";
+              return moment(item).format("Do MMM");
             },
             autoSkip: false //Required for tick skiping to work
           }
@@ -86,56 +88,25 @@ const myChart = new Chart(ctx, {
 async function newLine(chart) {
   return new Promise(async (resolve, reject) => {
     const coinId = sessionStorage.getItem("coinId");
-    const request = axios({ method: "get", url: `/data/${coinId}` });
+    const request = axios({ method: "get", url: `/api/${coinId}` });
 
     try {
       const response = await request;
-      const { prices } = response.data;
-
-      //Transform response data for easier use for rendering
-      const chartData = prices.reduce(
-        (acc, pair) => {
-          acc.dates.push(moment(pair[0]));
-          acc.data.push(pair[1]);
-          return acc;
-        },
-        { dates: [], data: [] }
-      );
-
-      //Receive random graph color from server
-      const borderColor = await getColor();
+      const { data, dates } = response.data;
 
       const label = sessionStorage.getItem("symbol");
 
       //Create Chrat Specific dataset
       const newDataset = Object.assign(defaultDataset, {
         label,
-        data: chartData.data,
-        borderColor
+        data
       });
 
       //Load data into the chart
-      myChart.data.labels = chartData.dates;
+      myChart.data.labels = dates;
       myChart.data.datasets.push(newDataset);
       myChart.update();
       resolve(true);
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
-
-//Helper for handling color request
-async function getColor() {
-  return new Promise(async (resolve, reject) => {
-    const request = axios({
-      method: "get",
-      url: "/data/misc/color"
-    });
-    try {
-      const response = await request;
-      const { color } = response.data;
-      resolve(color);
     } catch (error) {
       reject(error);
     }
@@ -146,12 +117,23 @@ async function getColor() {
 function resize() {
   $("#myChart").outerHeight(
     $(window).height() -
-      $("#canvas").offset().top -
+      $("#myChart").offset().top -
       Math.abs($("#canvas").outerHeight(true) - $("#canvas").outerHeight())
   );
 }
 
 $(document).ready(function() {
+  const id = sessionStorage.getItem("coinId");
+  setInterval(async () => {
+    //Handle value updates every
+    const request = axios({ method: "get", url: `/api/${id}/value` });
+    const response = await request;
+    if (response.data.update)
+      document.getElementById(
+        "value"
+      ).innerHTML = `$ ${response.data.data.value.toLocaleString()}`;
+  }, 5 * 60 * 1000); //5 minutes
+
   resize();
   $(window).on("resize", function() {
     resize();
