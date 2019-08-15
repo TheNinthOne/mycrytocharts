@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.get("/:coinId", controller.data_chart);
 
-router.get("/misc/color", controller.data_color);
+router.get("/:coinId/value", controller.data_value);
 
 router.get("/:coinId/symbol", controller.data_symbol);
 
